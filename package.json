@@ -15,8 +15,8 @@
         "vite": "^7.0.7"
     },
     "dependencies": {
-        "@fontsource/fraunces": "^5.3.0",
-        "@fontsource/manrope": "^5.3.0",
+        "@fontsource-variable/fraunces": "5.3.0",
+        "@fontsource-variable/manrope": "5.3.0",
         "@zxing/browser": "^0.2.1"
     }
 }

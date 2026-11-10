@@ -37,7 +37,7 @@ class AdminPanelProvider extends PanelProvider
             ->favicon(asset('favicon.svg'))
             ->defaultAvatarProvider(InitialsAvatarProvider::class)
             ->brandLogo(fn () => view('components.brand', ['link' => false]))
-            ->font('Manrope', provider: LocalFontProvider::class)
+            ->font('Manrope Variable', provider: LocalFontProvider::class)
             ->darkMode(false)
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->renderHook('panels::body.end', fn () => view('components.bottom-nav'))
