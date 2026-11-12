@@ -43,6 +43,17 @@ $expensive=$writer->save($owner,Item::class,array_merge($data,['name'=>'Pricier 
 $check($page->getFilteredTableQuery()->first()->id===$expensive->id,'Value sort failed');
 $page->tableFilters['order']['by']='value_low';
 $check($page->getFilteredTableQuery()->first()->id===$item->id,'Ascending value sort failed');
+$page->setId('inventory-smoke');
+$page->mountAction('edit', [], ['table' => true, 'recordKey' => (string) $item->id]);
+$schema = (new ReflectionMethod($page, 'getMountedActionSchema'))->invoke($page);
+$check($schema !== null, 'Item edit action did not open');
+$editHtml = $schema->toHtml();
+foreach (['Essentials', 'Placement', 'Stock &amp; value', 'Photos', 'Labels'] as $label) {
+    $check(str_contains($editHtml, $label), 'Missing edit section: '.$label);
+}
+$schema->fill(array_merge($data, ['name' => 'Edited through sections', 'photos' => []]));
+$page->callMountedAction();
+$check($item->fresh()->name === 'Edited through sections', 'Sectioned edit did not save');
 foreach ([BrowseInventory::class, App\Filament\Pages\Auth\Settings::class, App\Filament\Widgets\InventoryTable::class] as $component) {
     $html=app('livewire')->mount($component);
     $check(strlen((string)$html)>100,'New page failed to render');

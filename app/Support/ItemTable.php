@@ -43,7 +43,7 @@ class ItemTable {
             ->recordActions([
                 EditAction::make()->visible(fn(Item $record)=>auth()->user()->can('update',$record))->label('Edit')->schema(fn($schema)=>$schema->components(ItemForm::components()))->using(fn(Item $record,array $data)=>app(InventoryWriter::class)->save(auth()->user(),Item::class,$data,$record)),
                 Action::make('label')->label('Label')->icon('heroicon-o-qr-code')->url(fn(Item $record)=>route('items.label',$record))->openUrlInNewTab(),
-                DeleteAction::make()->visible(fn(Item $record)=>auth()->user()->can('delete',$record))->iconButton()->tooltip('Delete item')->using(fn(Item $record)=>app(InventoryWriter::class)->delete(auth()->user(),$record)),
+                DeleteAction::make()->visible(fn(Item $record)=>auth()->user()->can('delete',$record))->iconButton()->tooltip('Delete item')->using(function(Item $record): bool { app(InventoryWriter::class)->delete(auth()->user(),$record); return true; }),
             ])->defaultSort('updated_at','desc')->defaultSortOptionLabel('Recently updated')->paginated([12,24,48])->defaultPaginationPageOption(12)
             ->emptyStateHeading('No items in this view')->emptyStateDescription('Choose another location, clear your filters, or add an item.');
     }

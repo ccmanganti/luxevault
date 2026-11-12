@@ -48,7 +48,7 @@ class BrowseInventory extends Page implements HasTable {
         });
     }
     protected function getHeaderActions(): array {
-        return [ItemResource::createAction()->label('Add item')->schema(fn($schema)=>ItemResource::form($schema))->fillForm(fn()=>['warehouse_id'=>$this->warehouseId,'inventory_group_id'=>$this->groupId,'quantity'=>1,'low_stock_threshold'=>0,'unit_cost'=>0,'unit_price'=>0,'category'=>'Furniture','condition'=>'good','status'=>'available'])->visible(fn()=>auth()->user()->can('inventory.manage'))];
+        return [ItemResource::createAction()->model(Item::class)->label('Add item')->schema(fn($schema)=>ItemResource::form($schema))->fillForm(fn()=>['warehouse_id'=>$this->warehouseId,'inventory_group_id'=>$this->groupId,'quantity'=>1,'low_stock_threshold'=>0,'unit_cost'=>0,'unit_price'=>0,'category'=>'Furniture','condition'=>'good','status'=>'available'])->visible(fn()=>auth()->user()->can('inventory.manage'))];
     }
     protected function getViewData(): array {
         [$warehouse,$project,$group]=$this->location();
