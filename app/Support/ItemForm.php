@@ -6,7 +6,7 @@ use Filament\Schemas\Components\{Tabs, Tabs\Tab};
 use Filament\Schemas\Components\Utilities\{Get, Set};
 class ItemForm {
     public static function components(): array {
-        return [Tabs::make('Item details')->tabs([
+        return [Tabs::make('Item details')->extraAttributes(['class' => 'lv-item-editor'])->tabs([
             Tab::make('Essentials')->icon('heroicon-o-cube')->schema([
                 TextInput::make('name')->label('Item name')->required()->maxLength(255)->columnSpanFull(),
                 AccountCategories::field(),

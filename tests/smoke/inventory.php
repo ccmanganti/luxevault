@@ -65,4 +65,16 @@ $check(str_contains($html,'Profile photo or logo'),'Profile photo field absent')
 $check(str_contains($html,'Change password'),'Password section absent');
 $check(Filament\Facades\Filament::getPanel('admin')->getUserMenuItems()['profile']->getLabel()==='Settings','Settings menu label missing');
 $check($owner->getFilamentAvatarUrl()===null,'Missing image must fall back to initials');
+$profilePath='profile-images/'.$owner->id.'/profile.png';
+$disk->put($profilePath,base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jfusAAAAASUVORK5CYII='));
+try {
+    $validated=(new ReflectionMethod($settings,'mutateFormDataBeforeSave'))->invoke($settings,['name'=>'Updated test profile','profile_image'=>$profilePath]);
+    (new ReflectionMethod($settings,'handleRecordUpdate'))->invoke($settings,$owner,$validated);
+    $check($owner->fresh()->profile_image===$profilePath,'Profile photo did not save');
+    $check($owner->getFilamentAvatarUrl()!==null,'Uploaded avatar not resolved');
+    $check(app(App\Http\Controllers\ProfileImageController::class)($owner->id)->getStatusCode()===200,'Profile image route failed');
+    Illuminate\Support\Facades\Auth::setUser($other);
+    try {app(App\Http\Controllers\ProfileImageController::class)($owner->id);throw new RuntimeException('Foreign profile image exposed');} catch (Illuminate\Database\Eloquent\ModelNotFoundException $expected) {}
+    Illuminate\Support\Facades\Auth::setUser($owner);
+} finally {$disk->deleteDirectory('profile-images');@rmdir(config('filesystems.disks.local.root'));}
 echo "PASS: account categories, staff scope, legacy discovery, tree authorization, search, location filters, price sorting, Settings and widget rendering.\n";

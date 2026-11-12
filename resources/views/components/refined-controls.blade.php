@@ -19,3 +19,5 @@
 @media(max-width:767px){.lv-browser{grid-template-columns:minmax(0,1fr);gap:14px}.lv-location-tree{position:static;max-height:320px;padding:10px 12px}.lv-tree-heading{padding-bottom:10px}.lv-tree-help{margin:0;padding-bottom:3px}.lv-location-breadcrumb{font-size:11px;margin-bottom:12px}.lv-items-table .fi-ta-content.fi-ta-content-grid{padding:8px!important;gap:8px!important}.lv-item-thumb{width:76px;height:90px;flex-basis:76px}.lv-item-summary{gap:11px}.lv-item-info>strong{font-size:13px}.lv-item-metrics{margin:5px 0}.lv-items-table .fi-ta-record .fi-ta-actions .fi-link{min-height:30px}.fi-sc-tabs-tab{white-space:normal}.fi-sc-tabs-tab-content{min-width:0}}
 @media(prefers-reduced-motion:reduce){.lv-tree-children,.lv-items-table .fi-ta-record{animation:none!important}.lv-tree-row{transition:none}}
 </style>
+
+<style>@media(max-width:640px){.lv-item-editor .fi-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;overflow:visible;padding:8px}.lv-item-editor .fi-tabs-item{min-width:0;white-space:normal;font-size:11px;padding:9px 5px;line-height:1.4}.lv-item-editor .fi-tabs-item>.fi-icon{display:none}}</style>
