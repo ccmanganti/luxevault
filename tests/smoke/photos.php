@@ -19,6 +19,7 @@ config([
 ]);
 $app->forgetInstance(Spatie\Permission\PermissionRegistrar::class);
 Illuminate\Support\Facades\DB::purge('photo_smoke');
+Illuminate\Support\Facades\Storage::forgetDisk('local');
 $disk = Illuminate\Support\Facades\Storage::disk('local');
 $check = function ($condition, string $message) {
     if (! $condition) {
