@@ -1,6 +1,6 @@
 <x-filament-panels::page>
  <div class="lv-scan-workspace" x-data="{ mode: 'camera', showInput: @js(!$lookedUp), revealResult() { this.showInput = false; this.$nextTick(() => { this.$refs.result?.focus({ preventScroll: true }); this.$refs.result?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); }); } }"
-      @vault-scan-result.window="revealResult()" @vault-scan-reset.window="showInput = true; $nextTick(() => $refs.cameraTab?.focus())">
+      @vault-scan-result.window="revealResult()" @vault-scan-reset.window="mode = 'camera'; showInput = true; $nextTick(() => $refs.cameraTab?.focus())">
   @if($showCreate)
    <section class="lv-op-card lv-new-piece"><div class="lv-op-heading"><div><span class="lv-scan-eyebrow">NEW ITEM</span><h2>Add a piece to your vault</h2></div><button type="button" wire:click="cancelCreate" class="lv-button lv-button-light">← Back to scanner</button></div><form wire:submit="save" class="lv-quick-form">{{ $this->form }}</form></section>
   @else
