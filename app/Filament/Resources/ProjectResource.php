@@ -25,12 +25,12 @@ class ProjectResource extends BaseResource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->components([Select::make('warehouse_id')->label('Warehouse')->options(fn () => Warehouse::visibleTo(auth()->user())->pluck('name', 'id'))->required()->searchable(), TextInput::make('name')->required()->maxLength(255), TextInput::make('client_name')->label('Client')->maxLength(255), Textarea::make('notes')->rows(2)])->columns(2);
+        return $schema->components([\App\Support\InventoryPhotoField::make(), Select::make('warehouse_id')->label('Warehouse')->options(fn () => Warehouse::visibleTo(auth()->user())->pluck('name', 'id'))->required()->searchable(), TextInput::make('name')->required()->maxLength(255), TextInput::make('client_name')->label('Client')->maxLength(255), Textarea::make('notes')->rows(2)])->columns(2);
     }
 
     public static function table(Table $table): Table
     {
-        return $table->contentGrid(['default' => 1, 'md' => 2, '2xl' => 3])->columns([\Filament\Tables\Columns\Layout\Grid::make(['default' => 2])->schema([TextColumn::make('name')->columnSpanFull()->wrap()->searchable()->weight('bold'), TextColumn::make('warehouse.name')->description('Warehouse', position: 'above')->wrap()->badge(), TextColumn::make('client_name')->description('Client', position: 'above')->wrap()->searchable(), TextColumn::make('groups_count')->description('Groups', position: 'above')->wrap()->counts('groups')->label('Groups')])])->recordActions([...static::recordActions()])->defaultSort('created_at', 'desc')->emptyStateHeading('Your projects will appear here')->emptyStateDescription('Add your first record to start organizing your vault.');
+        return $table->contentGrid(['default' => 1, 'md' => 2, '2xl' => 3])->columns([\Filament\Tables\Columns\Layout\Grid::make(['default' => 2])->schema([\Filament\Tables\Columns\ViewColumn::make('cover_photo')->view('tables.columns.record-photo')->columnSpanFull(), TextColumn::make('name')->columnSpanFull()->wrap()->searchable()->weight('bold'), TextColumn::make('warehouse.name')->description('Warehouse', position: 'above')->wrap()->badge(), TextColumn::make('client_name')->description('Client', position: 'above')->wrap()->searchable(), TextColumn::make('groups_count')->description('Groups', position: 'above')->wrap()->counts('groups')->label('Groups')])])->recordActions([...static::recordActions()])->defaultSort('created_at', 'desc')->emptyStateHeading('Your projects will appear here')->emptyStateDescription('Add your first record to start organizing your vault.');
     }
 
     public static function getPages(): array

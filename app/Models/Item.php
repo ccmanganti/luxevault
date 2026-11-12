@@ -7,7 +7,9 @@ use Illuminate\Support\Str;
 
 class Item extends Model
 {
-    protected $fillable = ['warehouse_id', 'inventory_group_id', 'name', 'sku', 'barcode', 'category', 'location', 'condition', 'status', 'quantity', 'low_stock_threshold', 'unit_cost', 'unit_price', 'notes'];
+    use \App\Models\Concerns\HasInventoryPhotos;
+
+    protected $fillable = ['photos', 'warehouse_id', 'inventory_group_id', 'name', 'sku', 'barcode', 'category', 'location', 'condition', 'status', 'quantity', 'low_stock_threshold', 'unit_cost', 'unit_price', 'notes'];
 
     protected function casts(): array
     {

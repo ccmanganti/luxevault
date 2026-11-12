@@ -6,7 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class InventoryGroup extends Model
 {
-    protected $fillable = ['project_id', 'name', 'type', 'notes'];
+    use \App\Models\Concerns\HasInventoryPhotos;
+
+    protected $fillable = ['photos', 'project_id', 'name', 'type', 'notes'];
 
     public function project()
     {

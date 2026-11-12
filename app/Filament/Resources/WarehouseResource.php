@@ -25,12 +25,12 @@ class WarehouseResource extends BaseResource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->components([Select::make('owner_id')->label('Warehouse owner')->options(fn () => User::role('warehouse_owner')->pluck('name', 'id'))->searchable()->visible(fn () => auth()->user()->isSuper())->required(fn () => auth()->user()->isSuper())->disabled(fn ($record) => $record !== null), TextInput::make('name')->required()->maxLength(255), Textarea::make('address')->rows(2), Textarea::make('notes')->rows(2)])->columns(2);
+        return $schema->components([\App\Support\InventoryPhotoField::make(), Select::make('owner_id')->label('Warehouse owner')->options(fn () => User::role('warehouse_owner')->pluck('name', 'id'))->searchable()->visible(fn () => auth()->user()->isSuper())->required(fn () => auth()->user()->isSuper())->disabled(fn ($record) => $record !== null), TextInput::make('name')->required()->maxLength(255), Textarea::make('address')->rows(2), Textarea::make('notes')->rows(2)])->columns(2);
     }
 
     public static function table(Table $table): Table
     {
-        return $table->contentGrid(['default' => 1, 'md' => 2, '2xl' => 3])->columns([\Filament\Tables\Columns\Layout\Grid::make(['default' => 2])->schema([TextColumn::make('name')->columnSpanFull()->wrap()->searchable()->weight('bold'), TextColumn::make('owner.name')->description('Owner', position: 'above')->wrap()->label('Owner'), TextColumn::make('items_count')->description('Items', position: 'above')->wrap()->counts('items')->label('Item records'), TextColumn::make('address')->description('Address', position: 'above')->wrap()->limit(40)])])->recordActions([...static::recordActions()])->defaultSort('created_at', 'desc')->emptyStateHeading('Your warehouses will appear here')->emptyStateDescription('Add your first record to start organizing your vault.');
+        return $table->contentGrid(['default' => 1, 'md' => 2, '2xl' => 3])->columns([\Filament\Tables\Columns\Layout\Grid::make(['default' => 2])->schema([\Filament\Tables\Columns\ViewColumn::make('cover_photo')->view('tables.columns.record-photo')->columnSpanFull(), TextColumn::make('name')->columnSpanFull()->wrap()->searchable()->weight('bold'), TextColumn::make('owner.name')->description('Owner', position: 'above')->wrap()->label('Owner'), TextColumn::make('items_count')->description('Items', position: 'above')->wrap()->counts('items')->label('Item records'), TextColumn::make('address')->description('Address', position: 'above')->wrap()->limit(40)])])->recordActions([...static::recordActions()])->defaultSort('created_at', 'desc')->emptyStateHeading('Your warehouses will appear here')->emptyStateDescription('Add your first record to start organizing your vault.');
     }
 
     public static function getPages(): array

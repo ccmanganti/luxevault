@@ -24,7 +24,7 @@ class InventoryWriter
         return DB::transaction(function () use ($actor, $class, $data, $record) {
             $record ??= new $class;
             $new = ! $record->exists;
-            $rules = ['name' => 'required|string|max:255', 'notes' => 'nullable|string|max:10000'];
+            $rules = ['name' => 'required|string|max:255', 'notes' => 'nullable|string|max:10000', 'photos' => 'nullable|array|max:6', 'photos.*' => 'required|string|max:500'];
             if ($class === Warehouse::class) {
                 $owner = $record->exists ? $record->owner : ($actor->isSuper() ? User::findOrFail($data['owner_id'] ?? $actor->id) : $actor);
                 $owner = User::whereKey($owner->id)->lockForUpdate()->firstOrFail();
@@ -70,6 +70,19 @@ class InventoryWriter
                 $rules['name'] = ['required', 'string', 'max:255', Rule::unique('inventory_groups', 'name')->where('project_id', $project->id)->ignore($record->id)];
             }
             $valid = Validator::make($data, $rules)->validate();
+            if (array_key_exists('photos', $valid)) {
+                $disk = \Illuminate\Support\Facades\Storage::disk('local');
+                foreach ($valid['photos'] ?? [] as $photo) {
+                    $ownedUpload = str_starts_with($photo, 'vault-photos/'.$actor->id.'/');
+                    $existingPhoto = in_array($photo, $record->photos ?? [], true);
+                    if ((! $ownedUpload && ! $existingPhoto) || ! preg_match('/^vault-photos\/[0-9]+\/[A-Za-z0-9]+\.(jpg|jpeg|png|webp)$/i', $photo) || str_contains($photo, '\\') || ! $disk->exists($photo)
+                        || ! in_array($disk->mimeType($photo), ['image/jpeg', 'image/png', 'image/webp'], true)
+                        || $disk->size($photo) > 5 * 1024 * 1024) {
+                        throw ValidationException::withMessages(['photos' => 'Choose a valid photo uploaded for this record (JPG, PNG or WebP, up to 5 MB).']);
+                    }
+                }
+                $valid['photos'] = array_values($valid['photos'] ?? []);
+            }
             $record->fill($valid);
             $changes = $record->getDirty();
             $record->save();

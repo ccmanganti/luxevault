@@ -6,7 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Project extends Model
 {
-    protected $fillable = ['warehouse_id', 'name', 'client_name', 'notes'];
+    use \App\Models\Concerns\HasInventoryPhotos;
+
+    protected $fillable = ['photos', 'warehouse_id', 'name', 'client_name', 'notes'];
 
     public function warehouse()
     {

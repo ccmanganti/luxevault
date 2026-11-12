@@ -6,7 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Warehouse extends Model
 {
-    protected $fillable = ['name', 'address', 'notes'];
+    use \App\Models\Concerns\HasInventoryPhotos;
+
+    protected $fillable = ['photos', 'name', 'address', 'notes'];
 
     public function owner()
     {
