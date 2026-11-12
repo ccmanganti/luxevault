@@ -30,7 +30,7 @@ class WarehouseResource extends BaseResource
 
     public static function table(Table $table): Table
     {
-        return $table->columns([TextColumn::make('name')->searchable()->weight('bold'), TextColumn::make('owner.name')->label('Owner'), TextColumn::make('items_count')->counts('items')->label('Item records'), TextColumn::make('address')->limit(40)->toggleable()])->recordActions([...static::recordActions()])->defaultSort('created_at', 'desc')->emptyStateHeading('Your warehouses will appear here')->emptyStateDescription('Add your first record to start organizing your vault.');
+        return $table->columns([\Filament\Tables\Columns\Layout\Grid::make(['default' => 1, 'sm' => 2, 'xl' => 3])->schema([TextColumn::make('name')->wrap()->searchable()->weight('bold'), TextColumn::make('owner.name')->description('Owner', position: 'above')->wrap()->label('Owner'), TextColumn::make('items_count')->description('Items', position: 'above')->wrap()->counts('items')->label('Item records'), TextColumn::make('address')->description('Address', position: 'above')->wrap()->limit(40)])])->recordActions([...static::recordActions()])->defaultSort('created_at', 'desc')->emptyStateHeading('Your warehouses will appear here')->emptyStateDescription('Add your first record to start organizing your vault.');
     }
 
     public static function getPages(): array

@@ -10,14 +10,15 @@ const register = () => {
    try {
     const { BrowserMultiFormatReader } = await import('@zxing/browser');
     this.reader=new BrowserMultiFormatReader();
-    const controls=await this.reader.decodeFromConstraints({video:{facingMode:{ideal:'environment'}},audio:false},this.$refs.video,(result,error,controls)=>{
+    const controls=await this.reader.decodeFromConstraints({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false},this.$refs.video,(result,error,controls)=>{
      if(result && !this.cancelled) {
-      const code=result.getText(); this.message='Code captured. Continue to describe your item.';
-      this.$wire.scanLookup(code); controls.stop(); this.running=false; this.cancelled=true;
+      const code=result.getText(); this.cancelled=true; controls.stop(); this.running=false;
+      this.message='Code captured. Checking your vault…';
+      this.$wire.scanLookup(code).then(() => { this.message='Code captured. Review the code below, then continue.'; }).catch(() => { this.message='Could not look up the code. Please enter it below and try again.'; });
      }
     });
     this.controls=controls;
-    if(this.cancelled) controls.stop(); else this.running=true;
+    if(this.cancelled) controls.stop(); else { this.running=true; this.message='Keep the label steady inside the frame. Scanning automatically…'; }
    } catch(error) { this.message=error.name==='NotAllowedError'?'Camera permission was declined. You can enter the code manually.':'Could not open the camera. Check permissions or enter a code manually.'; }
    finally { this.starting=false; }
   },

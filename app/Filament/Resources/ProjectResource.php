@@ -30,7 +30,7 @@ class ProjectResource extends BaseResource
 
     public static function table(Table $table): Table
     {
-        return $table->columns([TextColumn::make('name')->searchable()->weight('bold'), TextColumn::make('warehouse.name')->badge(), TextColumn::make('client_name')->searchable(), TextColumn::make('groups_count')->counts('groups')->label('Groups')])->recordActions([...static::recordActions()])->defaultSort('created_at', 'desc')->emptyStateHeading('Your projects will appear here')->emptyStateDescription('Add your first record to start organizing your vault.');
+        return $table->columns([\Filament\Tables\Columns\Layout\Grid::make(['default' => 1, 'sm' => 2, 'xl' => 3])->schema([TextColumn::make('name')->wrap()->searchable()->weight('bold'), TextColumn::make('warehouse.name')->description('Warehouse', position: 'above')->wrap()->badge(), TextColumn::make('client_name')->description('Client', position: 'above')->wrap()->searchable(), TextColumn::make('groups_count')->description('Groups', position: 'above')->wrap()->counts('groups')->label('Groups')])])->recordActions([...static::recordActions()])->defaultSort('created_at', 'desc')->emptyStateHeading('Your projects will appear here')->emptyStateDescription('Add your first record to start organizing your vault.');
     }
 
     public static function getPages(): array

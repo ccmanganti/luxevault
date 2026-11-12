@@ -30,7 +30,7 @@ class InventoryGroupResource extends BaseResource
 
     public static function table(Table $table): Table
     {
-        return $table->columns([TextColumn::make('name')->searchable()->weight('bold'), TextColumn::make('project.name')->label('Project')->searchable(), TextColumn::make('project.warehouse.name')->label('Warehouse'), TextColumn::make('type')->badge(), TextColumn::make('items_count')->counts('items')])->recordActions([...static::recordActions()])->defaultSort('created_at', 'desc')->emptyStateHeading('Your rooms & groups will appear here')->emptyStateDescription('Add your first record to start organizing your vault.');
+        return $table->columns([\Filament\Tables\Columns\Layout\Grid::make(['default' => 1, 'sm' => 2, 'xl' => 3])->schema([TextColumn::make('name')->wrap()->searchable()->weight('bold'), TextColumn::make('project.name')->description('Project', position: 'above')->wrap()->label('Project')->searchable(), TextColumn::make('project.warehouse.name')->description('Warehouse', position: 'above')->wrap()->label('Warehouse'), TextColumn::make('type')->description('Type', position: 'above')->wrap()->badge(), TextColumn::make('items_count')->description('Items', position: 'above')->wrap()->counts('items')])])->recordActions([...static::recordActions()])->defaultSort('created_at', 'desc')->emptyStateHeading('Your rooms & groups will appear here')->emptyStateDescription('Add your first record to start organizing your vault.');
     }
 
     public static function getPages(): array
