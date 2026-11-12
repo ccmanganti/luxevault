@@ -70,6 +70,9 @@ class InventoryWriter
                 $rules['name'] = ['required', 'string', 'max:255', Rule::unique('inventory_groups', 'name')->where('project_id', $project->id)->ignore($record->id)];
             }
             $valid = Validator::make($data, $rules)->validate();
+            if ($class === Item::class) {
+                $valid['category'] = \App\Support\AccountCategories::remember($warehouse->owner_id, $valid['category']);
+            }
             if (array_key_exists('photos', $valid)) {
                 $disk = \Illuminate\Support\Facades\Storage::disk('local');
                 foreach ($valid['photos'] ?? [] as $photo) {

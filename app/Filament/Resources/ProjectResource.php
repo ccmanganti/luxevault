@@ -15,6 +15,8 @@ class ProjectResource extends BaseResource
 {
     protected static bool $isDiscovered = true;
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Resource management';
+
     protected static ?string $model = Project::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-folder';
