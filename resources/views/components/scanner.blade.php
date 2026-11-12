@@ -8,7 +8,8 @@
    <strong x-text="starting ? 'Opening your camera…' : 'Tap to start scanning'"></strong>
   </button>
  </div>
- <p class="lv-scan-hint">Hold the label inside the frame. Keep your phone steady.</p>
+ <p class="lv-scan-hint">Keep the entire barcode in view, with space at both ends. Avoid glare. Scan the bars or QR code, not the printed numbers.</p>
  <div class="lv-camera-actions"><button type="button" class="lv-button" @click="running || starting ? stop() : start()" x-text="starting ? 'Cancel camera' : running ? 'Stop camera' : 'Open camera'"></button></div>
+ <div class="lv-scan-tools" x-show="running" x-cloak><button type="button" class="lv-button lv-button-light" x-show="torchAvailable" @click="toggleTorch()" x-text="torchOn?'Light off':'Light on'"></button><label x-show="zoomAvailable">Zoom <input type="range" :min="zoomMin" :max="zoomMax" step="0.1" x-model="zoom" @input.debounce.150ms="setZoom()" aria-label="Camera zoom"></label></div>
  <p x-text="message" role="status" aria-live="polite" class="lv-muted"></p><small>Allow camera access when prompted, or enter a code below.</small>
 </div>

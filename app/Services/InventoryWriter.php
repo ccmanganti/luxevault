@@ -41,6 +41,9 @@ class InventoryWriter
                 if ($record->exists && $class === Project::class && $record->warehouse_id !== $warehouse->id && $record->groups()->exists()) {
                     throw ValidationException::withMessages(['warehouse_id' => 'A project with groups cannot be moved.']);
                 }
+                if ($record->exists && $class === Item::class && $record->warehouse->owner_id !== $warehouse->owner_id) {
+                    throw ValidationException::withMessages(['warehouse_id' => 'Choose a warehouse in the same account. Use shared records for external handoffs.']);
+                }
                 $data['warehouse_id'] = $warehouse->id;
                 $rules['warehouse_id'] = 'required|integer';
                 if ($class === Project::class) {
@@ -59,7 +62,7 @@ class InventoryWriter
                             throw ValidationException::withMessages(['inventory_group_id' => 'The group must belong to this warehouse.']);
                         }
                     }
-                    $rules += ['inventory_group_id' => 'nullable|integer', 'sku' => ['nullable', 'max:80', 'regex:/^[A-Za-z0-9._-]+$/', Rule::unique('items', 'sku')->ignore($record->id)], 'barcode' => 'nullable|string|max:120', 'category' => 'required|string|max:100', 'location' => 'nullable|string|max:255', 'condition' => Rule::in(['good', 'fair', 'damaged']), 'status' => Rule::in(['available', 'reserved', 'installed', 'repair']), 'quantity' => 'required|integer|min:0|max:1000000', 'low_stock_threshold' => 'required|integer|min:0|max:1000000', 'unit_cost' => 'required|numeric|min:0|max:9999999999.99', 'unit_price' => 'required|numeric|min:0|max:9999999999.99'];
+                    $rules += ['inventory_group_id' => 'nullable|integer', 'sku' => ['nullable', 'max:80', 'regex:/^[A-Za-z0-9._-]+$/', Rule::unique('items', 'sku')->ignore($record->id)], 'barcode' => 'nullable|string|max:120', 'category' => 'required|string|max:100', 'location' => 'nullable|string|max:255', 'condition' => Rule::in(['good', 'fair', 'damaged']), 'status' => Rule::in(array_keys(ItemOperations::STATUSES)), 'quantity' => 'required|integer|min:0|max:1000000', 'low_stock_threshold' => 'required|integer|min:0|max:1000000', 'unit_cost' => 'required|numeric|min:0|max:9999999999.99', 'unit_price' => 'required|numeric|min:0|max:9999999999.99'];
                 }
             } elseif ($class === InventoryGroup::class) {
                 $project = Project::visibleTo($actor)->findOrFail($data['project_id']);
@@ -88,9 +91,19 @@ class InventoryWriter
             }
             $record->fill($valid);
             $changes = $record->getDirty();
+            if ($class === Item::class) {
+                if ($new) $record->acquisition_total = round((float)$record->unit_cost * (int)$record->quantity, 2);
+                $record->revision = (int)$record->revision + 1;
+            }
             $record->save();
             if ($class === Item::class) {
                 InventoryEvent::create(['warehouse_id' => $record->warehouse_id, 'user_id' => $actor->id, 'item_name' => $record->name, 'action' => $new ? 'Added' : 'Updated', 'changes' => $changes]);
+                $messages = [];
+                if (isset($changes['status'])) $messages[] = 'Status: '.(ItemOperations::STATUSES[$record->status] ?? $record->status);
+                if (isset($changes['condition'])) $messages[] = 'Condition: '.$record->condition;
+                if (isset($changes['warehouse_id']) || array_key_exists('inventory_group_id', $changes) || array_key_exists('location', $changes)) $messages[] = 'Location updated';
+                if (array_key_exists('quantity', $changes)) $messages[] = 'Quantity: '.$record->quantity;
+                if ($messages) app(ItemOperations::class)->activity($actor, $record, $new ? 'created' : 'updated', implode(' · ', $messages));
             }
 
             return $record;

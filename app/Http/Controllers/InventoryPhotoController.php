@@ -20,8 +20,8 @@ class InventoryPhotoController
             'item' => Item::class,
             default => abort(404),
         };
-        $model = $class::visibleTo(auth()->user())->findOrFail($record);
-        Gate::authorize('view', $model);
+        $model = $kind === 'item' ? app(\App\Services\ItemOperations::class)->record(auth()->user(), $record) : $class::visibleTo(auth()->user())->findOrFail($record);
+        if ($kind !== 'item') Gate::authorize('view', $model);
         $path = $model->photos[$index] ?? null;
         $disk = Storage::disk('local');
         if (! $path || ! $disk->exists($path)) {

@@ -32,7 +32,7 @@ class ItemTable {
                         !empty($data['group'])?'Room / group selected':null,
                     ])),
                 SelectFilter::make('category')->options(fn()=>Item::visibleTo(auth()->user())->distinct()->orderBy('category')->pluck('category','category'))->searchable(),
-                SelectFilter::make('status')->options(['available'=>'Available','reserved'=>'Reserved','installed'=>'Installed','repair'=>'Repair']),
+                SelectFilter::make('status')->options(\App\Services\ItemOperations::STATUSES),
                 Filter::make('order')->label('Sort by')->schema([
                     Select::make('by')->label('Sort by')->options(['recent'=>'Recently updated','name'=>'Name A–Z','quantity'=>'Quantity: high to low','value_high'=>'Value: high to low','value_low'=>'Value: low to high'])->default('recent')->selectablePlaceholder(false),
                 ])->baseQuery(function(Builder $query,array $data){
@@ -41,6 +41,7 @@ class ItemTable {
                 }),
             ])->deferFilters(false)->filtersFormColumns(1)
             ->recordActions([
+                Action::make('record')->label('Open')->icon('heroicon-o-arrow-top-right-on-square')->url(fn(Item $record)=>\App\Filament\Pages\ItemRecord::getUrl(['itemId'=>$record->id])),
                 EditAction::make()->visible(fn(Item $record)=>auth()->user()->can('update',$record))->label('Edit')->schema(fn($schema)=>$schema->components(ItemForm::components()))->using(fn(Item $record,array $data)=>app(InventoryWriter::class)->save(auth()->user(),Item::class,$data,$record)),
                 Action::make('label')->label('Label')->icon('heroicon-o-qr-code')->url(fn(Item $record)=>route('items.label',$record))->openUrlInNewTab(),
                 DeleteAction::make()->visible(fn(Item $record)=>auth()->user()->can('delete',$record))->iconButton()->tooltip('Delete item')->using(function(Item $record): bool { app(InventoryWriter::class)->delete(auth()->user(),$record); return true; }),

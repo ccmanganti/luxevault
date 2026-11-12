@@ -1,0 +1,1 @@
+<x-filament-panels::page><p class="lv-record-subtle">One record, shared responsibility. View updates and handoffs for items other organizations have shared with you.</p>{{ $this->table }}</x-filament-panels::page>

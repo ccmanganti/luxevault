@@ -13,7 +13,7 @@ class Item extends Model
 
     protected function casts(): array
     {
-        return ['unit_cost' => 'decimal:2', 'unit_price' => 'decimal:2', 'quantity' => 'integer', 'low_stock_threshold' => 'integer'];
+        return ['acquisition_total'=>'decimal:2','acquired_on'=>'date','repair_estimate'=>'decimal:2','reuse_revenue_estimate'=>'decimal:2','resale_estimate'=>'decimal:2','revision'=>'integer','responsible_user_id'=>'integer','unit_cost' => 'decimal:2', 'unit_price' => 'decimal:2', 'quantity' => 'integer', 'low_stock_threshold' => 'integer'];
     }
 
     protected static function booted(): void
@@ -33,6 +33,12 @@ class Item extends Model
     {
         return $this->belongsTo(InventoryGroup::class);
     }
+
+    public function shares() { return $this->hasMany(ItemShare::class); }
+    public function entries() { return $this->hasMany(ItemEntry::class); }
+    public function activities() { return $this->hasMany(ItemActivity::class); }
+    public function handoffs() { return $this->hasMany(ItemHandoff::class); }
+    public function responsible() { return $this->belongsTo(User::class, 'responsible_user_id'); }
 
     public function scopeVisibleTo($q, User $u)
     {

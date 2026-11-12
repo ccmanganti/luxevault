@@ -10,7 +10,7 @@ class ItemForm {
             Tab::make('Essentials')->icon('heroicon-o-cube')->schema([
                 TextInput::make('name')->label('Item name')->required()->maxLength(255)->columnSpanFull(),
                 AccountCategories::field(),
-                Select::make('status')->options(['available'=>'Available','reserved'=>'Reserved','installed'=>'Installed','repair'=>'Repair'])->default('available')->required(),
+                Select::make('status')->options(\App\Services\ItemOperations::STATUSES)->default('available')->required(),
                 Select::make('condition')->options(['good'=>'Good','fair'=>'Fair','damaged'=>'Damaged'])->default('good')->required(),
                 Textarea::make('notes')->rows(3)->columnSpanFull(),
             ])->columns(2),
