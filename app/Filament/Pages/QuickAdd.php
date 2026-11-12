@@ -39,9 +39,10 @@ class QuickAdd extends Page
     public string $lookupCode = '';
 
     protected function currentItem(): Item { return $this->cachedRecord($this->matchedItemId ?? 0); }
-    public function selectMatch(int $id): void { abort_unless(in_array($id,$this->matchIds,true),404); $this->operations()->record(auth()->user(),$id); $this->matchedItemId=$id; }
-    public function beginCreate(): void { abort_unless(static::canAccess(),403); $this->showCreate=true; $this->form->fill(['barcode'=>$this->lookupCode,'quantity'=>1,'unit_cost'=>0,'unit_price'=>0,'category'=>'Furniture','condition'=>'good','status'=>'available','low_stock_threshold'=>0]); }
+    public function selectMatch(int $id): void { abort_unless(in_array($id,$this->matchIds,true),404); $this->operations()->record(auth()->user(),$id); $this->matchedItemId=$id;$this->dispatch('vault-scan-result'); }
+    public function beginCreate(): void { abort_unless(static::canAccess(),403); $this->showCreate=true;$this->dispatch('vault-scan-stop'); $this->form->fill(['barcode'=>$this->lookupCode,'quantity'=>1,'unit_cost'=>0,'unit_price'=>0,'category'=>'Furniture','condition'=>'good','status'=>'available','low_stock_threshold'=>0]); }
     public function cancelCreate(): void { $this->showCreate=false; }
+    public function resetScan(): void { $this->matchedItemId=null;$this->matchIds=[];$this->showCreate=false;$this->lookedUp=false;$this->lookupCode='';$this->operationItem=null;$this->resetErrorBag();$this->dispatch('vault-scan-reset'); }
     protected function getViewData(): array { return ['matched'=>$this->matchedItemId?$this->currentItem():null, 'matches'=>Item::visibleTo(auth()->user())->whereIn('id',$this->matchIds)->with('warehouse')->get()]; }
 
 
@@ -52,8 +53,10 @@ class QuickAdd extends Page
 
     public function getHeading(): string
     {
-        return 'Scan. Find. Take action.';
+        return 'Scan an item';
     }
+
+    public function getSubheading(): string { return 'Use the camera or type a code. Your next action is one tap away.'; }
 
     public static function canAccess(): bool
     {
@@ -79,6 +82,8 @@ class QuickAdd extends Page
         $this->matchIds=$items->modelKeys();
         $this->matchedItemId=$items->count()===1?$items->first()->id:null;
         $this->showCreate=false; $this->lookedUp=$code!=='';
+        $this->dispatch('vault-scan-stop');
+        if ($this->lookedUp) $this->dispatch('vault-scan-result');
     }
 
     public function save(): void

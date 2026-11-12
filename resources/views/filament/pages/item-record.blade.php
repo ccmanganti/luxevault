@@ -6,13 +6,17 @@
   <div class="lv-op-actions">{{ $this->statusAction }} {{ $this->moveAction }} {{ $this->stockAction }} {{ $this->noteAction }}</div>
  </section>
  <nav class="lv-record-tabs" aria-label="Item sections">
-  @foreach(['overview'=>'Overview','investment'=>'Investment','history'=>'Shared history'] as $key=>$label)
+  @foreach(['overview'=>'Overview','investment'=>'Investment','history'=>'Sharing & handoffs'] as $key=>$label)
    @if($key!=='investment'||$internal)<button type="button" wire:click="selectTab('{{ $key }}')" class="{{ $tab===$key?'is-active':'' }}" aria-current="{{ $tab===$key?'page':'false' }}">{{ $label }}</button>@endif
   @endforeach
  </nav>
  <div wire:loading wire:target="selectTab" role="status" class="lv-record-subtle">Opening section…</div>
  <div class="lv-record-pane" wire:key="record-tab-{{ $tab }}">
  @if($tab==='overview')
+  <div class="lv-record-feature-links">
+   @if($internal)<button type="button" wire:click="selectTab('investment')"><span class="lv-feature-icon">{{ svg('heroicon-o-chart-bar') }}</span><span><strong>Investment & decisions</strong><small>Log costs, usage and revenue</small></span>{{ svg('heroicon-o-arrow-right','lv-feature-arrow') }}</button>@endif
+   <button type="button" wire:click="selectTab('history')"><span class="lv-feature-icon">{{ svg('heroicon-o-user-group') }}</span><span><strong>Sharing & handoffs</strong><small>People, evidence and responsibility</small></span>{{ svg('heroicon-o-arrow-right','lv-feature-arrow') }}</button>
+  </div>
   <div class="lv-op-grid"><section class="lv-op-card"><h2>At a glance</h2><dl class="lv-key-values"><div><dt>Quantity</dt><dd>{{ $item->quantity }}</dd></div><div><dt>Condition</dt><dd>{{ ucfirst($item->condition) }}</dd></div><div><dt>Responsible</dt><dd>{{ $responsible?->name ?? 'Not assigned' }}</dd></div><div><dt>Barcode</dt><dd>{{ $item->barcode ?: 'Not set' }}</dd></div>@if($internal)<div><dt>Unit value</dt><dd>USD ${{ number_format((float)$item->unit_price,2) }}</dd></div>@endif</dl></section>
   <section class="lv-op-card"><h2>Next handoff</h2>
    @if($pending)<span class="lv-item-badge">Awaiting acceptance</span><p><strong>{{ $pending->sender->name }}</strong> → <strong>{{ $pending->recipient->name }}</strong></p><p class="lv-record-text">{{ $pending->instructions }}</p>@if($pending->due_on)<p class="lv-record-subtle">Due {{ $pending->due_on->format('M j, Y') }}</p>@endif

@@ -1,15 +1,13 @@
-<div x-data="vaultScanner" class="lv-scanner" wire:ignore>
- <div class="lv-camera-state"><span>SCAN YOUR PIECE</span><span x-text="running ? 'Camera live' : starting ? 'Connecting…' : 'Ready when you are'"></span></div>
+<div x-data="vaultScanner" class="lv-scanner" wire:ignore @vault-scan-stop.window="stop()" @vault-scan-reset.window="stop(); message = 'Scan a barcode or QR label to begin.'">
+ <div class="lv-camera-state"><span><i :class="running ? 'is-live' : ''" aria-hidden="true"></i><span x-text="running ? 'Camera live' : starting ? 'Connecting…' : 'Camera ready'">Camera ready</span></span><span x-show="running" x-cloak>Hold steady</span></div>
  <div class="lv-camera">
   <video x-ref="video" autoplay muted playsinline aria-label="Barcode camera preview"></video>
   <div class="lv-camera-reticle" aria-hidden="true"></div>
   <button type="button" class="lv-camera-launch" @click="start()" x-show="!running" :disabled="starting" aria-label="Open camera to scan a barcode">
-   <span class="lv-camera-play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span>
-   <strong x-text="starting ? 'Opening your camera…' : 'Tap to start scanning'"></strong>
+   <span class="lv-camera-play">{{ svg('heroicon-s-play') }}</span><strong x-text="starting ? 'Opening camera…' : 'Open camera'">Open camera</strong><small>Scan a barcode or QR label</small>
   </button>
  </div>
- <p class="lv-scan-hint">Keep the entire barcode in view, with space at both ends. Avoid glare. Scan the bars or QR code, not the printed numbers.</p>
- <div class="lv-camera-actions"><button type="button" class="lv-button" @click="running || starting ? stop() : start()" x-text="starting ? 'Cancel camera' : running ? 'Stop camera' : 'Open camera'"></button></div>
- <div class="lv-scan-tools" x-show="running" x-cloak><button type="button" class="lv-button lv-button-light" x-show="torchAvailable" @click="toggleTorch()" x-text="torchOn?'Light off':'Light on'"></button><label x-show="zoomAvailable">Zoom <input type="range" :min="zoomMin" :max="zoomMax" step="0.1" x-model="zoom" @input.debounce.150ms="setZoom()" aria-label="Camera zoom"></label></div>
- <p x-text="message" role="status" aria-live="polite" class="lv-muted"></p><small>Allow camera access when prompted, or enter a code below.</small>
+ <div class="lv-scanner-feedback"><span aria-hidden="true">{{ svg('heroicon-o-viewfinder-circle') }}</span><p x-text="message" role="status" aria-live="polite">Scan a barcode or QR label to begin.</p></div>
+ <div class="lv-camera-controls" x-show="running || starting" x-cloak><button type="button" class="lv-button lv-button-light" @click="stop()" x-text="starting ? 'Cancel' : 'Stop camera'"></button><button type="button" class="lv-button lv-button-light" x-show="running && torchAvailable" @click="toggleTorch()" :aria-pressed="torchOn" x-text="torchOn ? 'Light off' : 'Light on'"></button><label x-show="running && zoomAvailable">Zoom <input type="range" :min="zoomMin" :max="zoomMax" step="0.1" x-model="zoom" @input.debounce.150ms="setZoom()" aria-label="Camera zoom"></label></div>
+ <details class="lv-scan-help"><summary>Tips for a clearer scan</summary><p>Keep the whole barcode visible, with space at both ends. Avoid glare and hold steady for three matching reads. Scan the bars or QR code; use Type code for printed numbers.</p></details>
 </div>

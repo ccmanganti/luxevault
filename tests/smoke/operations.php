@@ -72,6 +72,8 @@ try{
  Auth::setUser($other);$denied(fn()=>app(App\Http\Controllers\ItemEvidenceController::class)($activity->id,0),'Revoked collaborator still downloaded evidence');
  Auth::setUser($owner);
  foreach(['overview','investment','history'] as $tab) { $html=(string)app('livewire')->mount(ItemRecord::class,['itemId'=>$item->id,'tab'=>$tab]);$check(strlen($html)>100,'Owner record tab did not render: '.$tab); }
+ $check(strlen((string)app('livewire')->mount(App\Filament\Pages\Investment::class))>100,'Investment entry page did not render');
+ $scan->resetScan();$check($scan->matchedItemId===null && $scan->matchIds===[] && !$scan->lookedUp && $scan->lookupCode==='', 'Scan next retained previous item state');
  $ops->grant($owner,$item,['email'=>$other->email,'organization'=>'Expiry check','role'=>'installer','access'=>'view']);$item->shares()->where('user_id',$other->id)->update(['expires_at'=>now()->subMinute()]);$check(!$ops->canView($other,$item),'Expired share remained active');
  echo "PASS: scan matching and ambiguity, quick actions, stale edits, transfers, investment totals, ledger corrections, private financials, sharing and revocation, evidence, handoff acceptance, and action forms.\n";
 }finally{$disk->deleteDirectory('item-evidence');@rmdir(config('filesystems.disks.local.root'));Auth::setUser($owner);}

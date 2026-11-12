@@ -24,7 +24,7 @@ class Dashboard extends \Filament\Pages\Dashboard
 
     protected function getHeaderActions(): array
     {
-        return [Action::make('quickAdd')->label('Scan & add')->icon('heroicon-o-qr-code')->url(QuickAdd::getUrl())];
+        return [Action::make('quickAdd')->label('Scan & act')->icon('heroicon-o-qr-code')->url(QuickAdd::getUrl())->visible(fn()=>QuickAdd::canAccess())];
     }
 
     protected function getViewData(): array

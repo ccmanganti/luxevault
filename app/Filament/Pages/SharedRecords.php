@@ -10,6 +10,7 @@ class SharedRecords extends Page implements HasTable {
     protected static string|\BackedEnum|null $navigationIcon='heroicon-o-user-group';
     protected static string|\UnitEnum|null $navigationGroup='Collaboration';
     protected static ?string $title='Shared records';
+    protected static ?int $navigationSort=0;
     protected string $view='filament.pages.shared-records';
     public function table(Table $table): Table {
         return $table->query(Item::whereHas('warehouse.owner',fn($q)=>$q->where('is_active',true))->whereHas('shares',fn($q)=>$q->active()->where('user_id',auth()->id()))->with(['warehouse','responsible'])->withCount(['handoffs as pending_handoffs'=>fn($q)=>$q->where('status','pending')->where('to_user_id',auth()->id())]))

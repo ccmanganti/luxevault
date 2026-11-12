@@ -1,5 +1,6 @@
 <x-filament-panels::page>
 @include('filament.pages.dashboard-style')
+@include('components.feature-shortcuts')
 <section class="lv-dashboard-hero">
  <img src="https://static.wixstatic.com/media/a3e817_63000d199c96475a97f37e2c0d132c61~mv2.webp/v1/fill/w_1000%2Ch_563%2Cal_c%2Cq_85%2Cusm_0.66_1.00_0.01/a3e817_63000d199c96475a97f37e2c0d132c61~mv2.webp" alt="Neutral living room with sculptural furniture and layered textures" fetchpriority="high">
  <div class="lv-dashboard-hero-content"><span class="lv-dashboard-kicker">THE ART OF KEEPING THINGS IN PLACE</span><h2>Beautiful spaces.<br>Thoughtfully managed.</h2><p>From the warehouse shelf to the finishing touch.<br>Your collection, ready for its next chapter.</p><div class="lv-dashboard-actions"><a href="/admin/items" class="lv-button">Explore inventory →</a><a href="/admin/projects" class="lv-dashboard-link">View projects ↗</a></div></div>

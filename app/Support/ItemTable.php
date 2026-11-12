@@ -2,7 +2,7 @@
 namespace App\Support;
 use App\Models\{Item, Warehouse, Project, InventoryGroup};
 use App\Services\InventoryWriter;
-use Filament\Actions\{Action, EditAction, DeleteAction};
+use Filament\Actions\{Action, ActionGroup, EditAction, DeleteAction};
 use Filament\Tables\Table;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Columns\Layout\Stack;
@@ -41,10 +41,14 @@ class ItemTable {
                 }),
             ])->deferFilters(false)->filtersFormColumns(1)
             ->recordActions([
-                Action::make('record')->label('Open')->icon('heroicon-o-arrow-top-right-on-square')->url(fn(Item $record)=>\App\Filament\Pages\ItemRecord::getUrl(['itemId'=>$record->id])),
+                Action::make('record')->label('Details')->url(fn(Item $record)=>\App\Filament\Pages\ItemRecord::getUrl(['itemId'=>$record->id])),
+                Action::make('investment')->label('Investment')->icon('heroicon-o-chart-bar')->url(fn(Item $record)=>\App\Filament\Pages\ItemRecord::getUrl(['itemId'=>$record->id,'tab'=>'investment'])),
+                Action::make('sharing')->label('Share & handoff')->icon('heroicon-o-user-group')->url(fn(Item $record)=>\App\Filament\Pages\ItemRecord::getUrl(['itemId'=>$record->id,'tab'=>'history'])),
+                ActionGroup::make([
                 EditAction::make()->visible(fn(Item $record)=>auth()->user()->can('update',$record))->label('Edit')->schema(fn($schema)=>$schema->components(ItemForm::components()))->using(fn(Item $record,array $data)=>app(InventoryWriter::class)->save(auth()->user(),Item::class,$data,$record)),
                 Action::make('label')->label('Label')->icon('heroicon-o-qr-code')->url(fn(Item $record)=>route('items.label',$record))->openUrlInNewTab(),
-                DeleteAction::make()->visible(fn(Item $record)=>auth()->user()->can('delete',$record))->iconButton()->tooltip('Delete item')->using(function(Item $record): bool { app(InventoryWriter::class)->delete(auth()->user(),$record); return true; }),
+                DeleteAction::make()->visible(fn(Item $record)=>auth()->user()->can('delete',$record))->label('Delete item')->using(function(Item $record): bool { app(InventoryWriter::class)->delete(auth()->user(),$record); return true; }),
+                ])->label('More')->tooltip('Edit, print label or delete')->icon('heroicon-o-ellipsis-horizontal'),
             ])->defaultSort('updated_at','desc')->defaultSortOptionLabel('Recently updated')->paginated([12,24,48])->defaultPaginationPageOption(12)
             ->emptyStateHeading('No items in this view')->emptyStateDescription('Choose another location, clear your filters, or add an item.');
     }
