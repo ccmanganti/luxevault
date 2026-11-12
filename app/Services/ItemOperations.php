@@ -153,8 +153,9 @@ class ItemOperations
         $recipient=$this->participants($item)->get($valid['to_user_id']);
         if(!$recipient || $recipient->id===$actor->id) throw ValidationException::withMessages(['to_user_id'=>'Choose another person with current access to this record.']);
         DB::transaction(function() use($actor,$item,$valid,$recipient) {
-            Item::whereKey($item->id)->lockForUpdate()->firstOrFail();
-            if($item->handoffs()->where('status','pending')->exists()) throw ValidationException::withMessages(['to_user_id'=>'Resolve the pending handoff first.']);
+            $locked=Item::whereKey($item->id)->lockForUpdate()->firstOrFail();
+            abort_unless($this->canContribute($actor,$locked) && ($this->internal($actor,$locked) || $locked->responsible_user_id===$actor->id),403);
+            if($locked->handoffs()->where('status','pending')->exists()) throw ValidationException::withMessages(['to_user_id'=>'Resolve the pending handoff first.']);
             $item->handoffs()->create($valid+['from_user_id'=>$actor->id]);
             $this->activity($actor,$item,'handoff','Handoff requested to '.$recipient->name.'. '.$valid['instructions']);
         });
@@ -166,6 +167,7 @@ class ItemOperations
         Validator::make(['response'=>$response,'note'=>$note],['response'=>['required',Rule::in(['accepted','declined','cancelled'])],'note'=>'nullable|string|max:2000'])->validate();
         DB::transaction(function() use($actor,$item,$id,$response,$note) {
             $locked=Item::whereKey($item->id)->lockForUpdate()->firstOrFail();
+            abort_unless($this->canContribute($actor,$locked),403);
             $handoff=$locked->handoffs()->where('status','pending')->findOrFail($id);
             abort_unless($response==='cancelled' ? ($handoff->from_user_id===$actor->id || $this->canShare($actor,$locked)) : $handoff->to_user_id===$actor->id,403);
             $handoff->update(['status'=>$response,'response'=>$note,'responded_at'=>now()]);

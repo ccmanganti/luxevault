@@ -121,6 +121,9 @@ class InventoryWriter
                 throw ValidationException::withMessages(['record' => 'Remove or reassign the contents before deleting this record.']);
             }
             if ($record instanceof Item) {
+                if ($record->entries()->exists() || $record->shares()->exists() || $record->handoffs()->exists()) {
+                    throw ValidationException::withMessages(['record' => 'This item has investment or shared history. Set its status to Retired to preserve the record.']);
+                }
                 InventoryEvent::create(['warehouse_id' => $record->warehouse_id, 'user_id' => $actor->id, 'item_name' => $record->name, 'action' => 'Deleted']);
             }
             $record->delete();
