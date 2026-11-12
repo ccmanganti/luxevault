@@ -35,7 +35,7 @@ class ItemOperations
     public function record(User $actor, int $id): Item
     {
         $item=Item::with(['warehouse.owner','inventoryGroup.project','responsible'])->findOrFail($id);
-        abort_unless($this->canView($actor,$item),404);
+        if (!$this->canView($actor,$item)) throw (new \Illuminate\Database\Eloquent\ModelNotFoundException)->setModel(Item::class,[$id]);
         return $item;
     }
 
